@@ -58,6 +58,6 @@ body {
     display: none;
 }
 
-#next-btn { 
+#next-btn, #done-btn { 
     display: none;
 }

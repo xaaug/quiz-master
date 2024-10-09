@@ -7,9 +7,9 @@ const questionsContainer = document.querySelector(".questions-container");
 const questionDiv = document.querySelector(".question");
 const spinner = document.getElementById("loading");
 const nextBtn = document.getElementById("next-btn");
+const doneBtn = document.getElementById("done-btn");
 
 const questionContainer = document.querySelector(".questions");
-const newQuestionsBtn = document.getElementById("new");
 const scoreEl = document.getElementById("score");
 const highScoreEl = document.getElementById("high-score");
 
@@ -36,17 +36,16 @@ const fetchQuestions = async () => {
   }
 };
 
-newQuestionsBtn.style.display = "none";
 
 const startQuiz = async () => {
   const questions = await fetchQuestions();
 
   nextBtn.style.display = "inline-block";
 
-  displayQuestions(questions);
-  checkAnswers();
+  displayQuestion(questions, 0);
 };
 
+/*
 const displayQuestions = (arr) => {
   console.log(arr);
   const questionsParent = document.createElement("div");
@@ -104,17 +103,82 @@ const displayQuestions = (arr) => {
   questionsArray = questionsParent.children;
 
   questionDiv.insertAdjacentElement("afterbegin", questionsArray[0]);
+}; */
+
+let currentQuestionIndex = 1;
+let questionArray = [];
+const displayQuestion = (arr, index) => {
+  const questionsParent = document.createElement("div");
+  questionArray = arr;
+
+  const questionContainer = document.createElement("div");
+  const questionEl = document.createElement("h3");
+  const quesTionText = document.createTextNode(arr[index].question.text);
+  questionEl.appendChild(quesTionText);
+  questionEl.setAttribute("class", "question");
+  questionContainer.appendChild(questionEl);
+
+  const categoryEl = document.createElement("span");
+  const categoryText = document.createTextNode(
+    arr[index].category.charAt(0).toUpperCase() + arr[index].category.slice(1)
+  );
+  categoryEl.appendChild(categoryText);
+  categoryEl.setAttribute(
+    "class",
+    "category badge rounded-pill bg-info text-dark"
+  );
+  categoryEl.style.fontSize = ".8rem";
+  questionEl.appendChild(categoryEl);
+
+  const difficultyEl = document.createElement("span");
+  const difficultyText = document.createTextNode(
+    arr[currentQuestionIndex].difficulty.charAt(0).toUpperCase() +
+      arr[index].difficulty.slice(1)
+  );
+  difficultyEl.appendChild(difficultyText);
+  difficultyEl.setAttribute(
+    "class",
+    "difficulty badge rounded-pill bg-success"
+  );
+  difficultyEl.style.fontSize = ".8rem";
+  questionEl.appendChild(difficultyEl);
+
+  const answers = [...arr[index].incorrectAnswers, arr[index].correctAnswer];
+  const randomAnswers = shuffleArray(answers);
+  const correctAnswer = arr[index].correctAnswer;
+  console.log(correctAnswer);
+
+  const answersList = document.createElement("div");
+  answersList.setAttribute("class", "list-group answers");
+
+  randomAnswers.forEach((answer) => {
+    answersList.innerHTML += `<button type='button' data-state=${
+      answer === correctAnswer ? "correct" : "incorrect"
+    } class='list-group-item list-group-item-action answer-btn' >${answer}</button>`;
+
+    questionContainer.appendChild(answersList);
+  });
+
+  questionsParent.appendChild(questionContainer);
+  //   questionNo.textContent = `Question 1`;
+  questionNo.textContent = `Question ${index + 1}`;
+  //   questionsArray = questionsParent.children;
+
+  questionDiv.appendChild(questionsParent);
+  nextBtn.disabled = true
+  doneBtn.disabled = true
+  checkAnswers();
 };
 
-let currentQuestionIndex = 0;
-const getNextQuestion = (arr) => {
-  console.log(arr);
-  // questionDiv.innerHTML = `<button type="button" class="btn btn-primary" id="next-btn">Next</button>`
-  if (currentQuestionIndex <= arr.length - 1) {
-    questionDiv.appendChild(arr[currentQuestionIndex]);
+const displayNextQuestion = () => {
+  if (currentQuestionIndex < questionArray.length) {
+    questionDiv.innerHTML = "";
+    displayQuestion(questionArray, currentQuestionIndex);
     currentQuestionIndex++;
-    console.log(arr[currentQuestionIndex])
-  } else if (currentQuestionIndex > arr.length - 1) {
+  } else if (currentQuestionIndex === (questionArray.length)) {
+    nextBtn.style.display = 'none'
+    doneBtn.style.display = 'inline-block'
+    
   }
 };
 
@@ -133,11 +197,16 @@ const handleAnswer = (e) => {
   const answerBtnGroup = Array.from(e.target.parentElement.children);
 
   if (e.target.getAttribute("data-state") === "correct") {
+    nextBtn.disabled =false
     const prevClasses = e.target.getAttribute("class");
     e.target.className = prevClasses + " list-group-item-success" || "";
     currentScore++;
     // scoreEl.textContent = currentScore;
     console.log(currentScore);
+
+    if  (currentQuestionIndex === (questionArray.length)) {
+        doneBtn.disabled = false
+    }
 
     for (const item of answerBtnGroup) {
       if (item.getAttribute("data-state") === "incorrect") {
@@ -146,6 +215,10 @@ const handleAnswer = (e) => {
       }
     }
   } else if (e.target.getAttribute("data-state") === "incorrect") {
+    nextBtn.disabled =false
+    if  (currentQuestionIndex === (questionArray.length)) {
+        doneBtn.disabled = false
+    }
     e.target.className =
       e.target.getAttribute("class") + " list-group-item-danger";
 
@@ -159,6 +232,7 @@ const handleAnswer = (e) => {
 
 const checkAnswers = () => {
   const answerGroup = document.querySelectorAll(".answers");
+  
   setTimeout(() => {
     answerGroup.forEach((group) => {
       group.addEventListener(
@@ -178,7 +252,7 @@ const checkAnswers = () => {
         { once: true }
       );
     });
-  }, 500);
+  }, 200);
 };
 
 //   const shuffledArray = arr => {
@@ -208,16 +282,5 @@ startQuizBtn.addEventListener("click", () => {
   //   document.getElementById("score-parent").style.display = "flex";
 });
 
-newQuestionsBtn.addEventListener("click", () => {
-  questionContainer.innerHTML = "";
-  displayQuestions();
-  scores.push(currentScore);
-  currentScore = 0;
-  scoreEl.textContent = currentScore;
-  console.log(scores);
-  getHighScore();
-});
 
-nextBtn.addEventListener("click", () => {
-  getNextQuestion(questionsArray);
-});
+nextBtn.addEventListener("click", displayNextQuestion);
