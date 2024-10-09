@@ -8,14 +8,16 @@ const questionDiv = document.querySelector(".question");
 const spinner = document.getElementById("loading");
 const nextBtn = document.getElementById("next-btn");
 const doneBtn = document.getElementById("done-btn");
-
-const questionContainer = document.querySelector(".questions");
-const scoreEl = document.getElementById("score");
-const highScoreEl = document.getElementById("high-score");
+const failedQuestionsEl = document.querySelector(".failed-questions");
+const passedQuestionsEl = document.querySelector(".passed-questions");
+const scoreEl = document.querySelector(".score-el");
+const closeModalBtn = document.querySelector(".close-modal-btn");
 
 let currentScore = 0;
 const scores = [];
 let questionsArray = [];
+const failedQuestions = [];
+const passedQuestions = [];
 
 const fetchQuestions = async () => {
   spinner.style.display = "flex";
@@ -36,7 +38,6 @@ const fetchQuestions = async () => {
   }
 };
 
-
 const startQuiz = async () => {
   const questions = await fetchQuestions();
 
@@ -44,66 +45,6 @@ const startQuiz = async () => {
 
   displayQuestion(questions, 0);
 };
-
-/*
-const displayQuestions = (arr) => {
-  console.log(arr);
-  const questionsParent = document.createElement("div");
-  arr.forEach((question, _i) => {
-    const questionContainer = document.createElement("div");
-    const questionEl = document.createElement("h3");
-    const quesTionText = document.createTextNode(question.question.text);
-    questionEl.appendChild(quesTionText);
-    questionEl.setAttribute("class", "question");
-    questionContainer.appendChild(questionEl);
-
-    const categoryEl = document.createElement("span");
-    const categoryText = document.createTextNode(
-      question.category.charAt(0).toUpperCase() + question.category.slice(1)
-    );
-    categoryEl.appendChild(categoryText);
-    categoryEl.setAttribute(
-      "class",
-      "category badge rounded-pill bg-info text-dark"
-    );
-    categoryEl.style.fontSize = ".8rem";
-    questionEl.appendChild(categoryEl);
-
-    const difficultyEl = document.createElement("span");
-    const difficultyText = document.createTextNode(
-      question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1)
-    );
-    difficultyEl.appendChild(difficultyText);
-    difficultyEl.setAttribute(
-      "class",
-      "difficulty badge rounded-pill bg-success"
-    );
-    difficultyEl.style.fontSize = ".8rem";
-    questionEl.appendChild(difficultyEl);
-
-    const answers = [...question.incorrectAnswers, question.correctAnswer];
-    const randomAnswers = shuffleArray(answers);
-    const correctAnswer = question.correctAnswer;
-    console.log(correctAnswer);
-
-    const answersList = document.createElement("div");
-    answersList.setAttribute("class", "list-group answers");
-
-    randomAnswers.forEach((answer) => {
-      answersList.innerHTML += `<button type='button' data-state=${
-        answer === correctAnswer ? "correct" : "incorrect"
-      } class='list-group-item list-group-item-action answer-btn' >${answer}</button>`;
-
-      questionContainer.appendChild(answersList);
-      //   questionContainer.appendChild(questionEl);
-      newQuestionsBtn.style.display = "block";
-    });
-    questionsParent.appendChild(questionContainer);
-  });
-  questionsArray = questionsParent.children;
-
-  questionDiv.insertAdjacentElement("afterbegin", questionsArray[0]);
-}; */
 
 let currentQuestionIndex = 1;
 let questionArray = [];
@@ -165,8 +106,8 @@ const displayQuestion = (arr, index) => {
   //   questionsArray = questionsParent.children;
 
   questionDiv.appendChild(questionsParent);
-  nextBtn.disabled = true
-  doneBtn.disabled = true
+  nextBtn.disabled = true;
+  doneBtn.disabled = true;
   checkAnswers();
 };
 
@@ -175,10 +116,9 @@ const displayNextQuestion = () => {
     questionDiv.innerHTML = "";
     displayQuestion(questionArray, currentQuestionIndex);
     currentQuestionIndex++;
-  } else if (currentQuestionIndex === (questionArray.length)) {
-    nextBtn.style.display = 'none'
-    doneBtn.style.display = 'inline-block'
-    
+  } else if (currentQuestionIndex === questionArray.length) {
+    nextBtn.style.display = "none";
+    doneBtn.style.display = "inline-block";
   }
 };
 
@@ -192,21 +132,106 @@ const getHighScore = () => {
   highScoreEl.textContent = highScore[0];
 };
 
+const checkQuestionStatus = (e, state) => {
+  const targetText =
+    e.target.parentElement.parentNode.children[0].childNodes[0].textContent;
+  questionArray.forEach(({ correctAnswer, question }) => {
+    if (question.text === targetText) {
+      state.push({
+        query: question.text,
+        rightAnswer: correctAnswer,
+      });
+    }
+  });
+};
+
+const showResults = () => {
+  // Clear previous content to avoid duplication
+  failedQuestionsEl.innerHTML = "";
+  passedQuestionsEl.innerHTML = "";
+
+  if (!failedQuestions.length) {
+    failedQuestionsEl.innerHTML = `<h6>Hooray! You got all the questions right</h6>`;
+
+    passedQuestions.forEach(({ query, rightAnswer }, index) => {
+      passedQuestionsEl.innerHTML += `
+                <div class="border p-2 d-flex flex-column ${
+                  index > 0 ? "mt-2" : "mt-0"
+                }">
+                    <div class="d-flex align-items-start gap-1">
+                        <p class="text-success">${index + 1}.</p>
+                        <h6>${query}</h6>
+                    </div> 
+                    <p><strong>Your Answer:</strong> <i>${rightAnswer}</i></p>
+                </div>`;
+    });
+
+    scoreEl.textContent = `Score: ${currentScore} / ${questionArray.length}`;
+  } else if (failedQuestions.length === questionArray.length) {
+    failedQuestionsEl.innerHTML = `<h6>OH NO! You failed all questions</h6>`;
+
+    failedQuestions.forEach(({ query, rightAnswer }, index) => {
+      failedQuestionsEl.innerHTML += `
+                <div class="border p-2 d-flex flex-column ${
+                  index > 0 ? "mt-2" : "mt-0"
+                }">
+                    <div class="d-flex align-items-start gap-1">
+                        <p class="text-danger">${index + 1}.</p>
+                        <h6>${query}</h6>
+                    </div> 
+                    <p><strong>Correct Answer:</strong> <i>${rightAnswer}</i></p>
+                </div>`;
+    });
+
+    scoreEl.textContent = `Score: ${currentScore} / ${questionArray.length}`;
+  } else {
+    // Handle case when there are some failed questions but not all
+    passedQuestions.forEach(({ query, rightAnswer }, index) => {
+      passedQuestionsEl.innerHTML += `
+                <div class="border p-2 d-flex flex-column ${
+                  index > 0 ? "mt-2" : "mt-0"
+                }">
+                    <div class="d-flex align-items-start gap-1">
+                        <p class="text-success">${index + 1}.</p>
+                        <h6>${query}</h6>
+                    </div> 
+                    <p><strong>Your Answer:</strong> <i>${rightAnswer}</i></p>
+                </div>`;
+    });
+
+    failedQuestions.forEach(({ query, rightAnswer }, index) => {
+      failedQuestionsEl.innerHTML += `
+                <div class="border p-2 d-flex flex-column ${
+                  index > 0 ? "mt-2" : "mt-0"
+                }">
+                    <div class="d-flex align-items-start gap-1">
+                        <p class="text-danger">${index + 1}.</p>
+                        <h6>${query}</h6>
+                    </div> 
+                    <p><strong>Correct Answer:</strong> <i>${rightAnswer}</i></p>
+                </div>`;
+    });
+
+    scoreEl.textContent = `Score: ${currentScore} / ${questionArray.length}`;
+  }
+};
+
 const handleAnswer = (e) => {
   // console.log('Button clicked')
   const answerBtnGroup = Array.from(e.target.parentElement.children);
 
   if (e.target.getAttribute("data-state") === "correct") {
-    nextBtn.disabled =false
+    nextBtn.disabled = false;
     const prevClasses = e.target.getAttribute("class");
     e.target.className = prevClasses + " list-group-item-success" || "";
     currentScore++;
-    // scoreEl.textContent = currentScore;
-    console.log(currentScore);
 
-    if  (currentQuestionIndex === (questionArray.length)) {
-        doneBtn.disabled = false
+    if (currentQuestionIndex === questionArray.length) {
+      doneBtn.disabled = false;
     }
+
+    checkQuestionStatus(e, passedQuestions);
+    console.log(passedQuestions);
 
     for (const item of answerBtnGroup) {
       if (item.getAttribute("data-state") === "incorrect") {
@@ -215,12 +240,17 @@ const handleAnswer = (e) => {
       }
     }
   } else if (e.target.getAttribute("data-state") === "incorrect") {
-    nextBtn.disabled =false
-    if  (currentQuestionIndex === (questionArray.length)) {
-        doneBtn.disabled = false
+    nextBtn.disabled = false;
+    if (currentQuestionIndex === questionArray.length) {
+      doneBtn.disabled = false;
     }
+
+    checkQuestionStatus(e, failedQuestions);
+    console.log(failedQuestions);
+
     e.target.className =
       e.target.getAttribute("class") + " list-group-item-danger";
+    console.log(e.target.parentElement.parentNode);
 
     for (const btn of answerBtnGroup) {
       if (btn.getAttribute("data-state") === "correct") {
@@ -232,7 +262,7 @@ const handleAnswer = (e) => {
 
 const checkAnswers = () => {
   const answerGroup = document.querySelectorAll(".answers");
-  
+
   setTimeout(() => {
     answerGroup.forEach((group) => {
       group.addEventListener(
@@ -282,5 +312,9 @@ startQuizBtn.addEventListener("click", () => {
   //   document.getElementById("score-parent").style.display = "flex";
 });
 
-
 nextBtn.addEventListener("click", displayNextQuestion);
+doneBtn.addEventListener("click", showResults);
+closeModalBtn.addEventListener("click", () => {
+  questionsContainer.style.display = "none";
+  heroSection.style.display = "flex";
+});
