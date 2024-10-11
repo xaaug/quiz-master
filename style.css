@@ -61,3 +61,7 @@ body {
 #next-btn, #done-btn { 
     display: none;
 }
+
+.previous-players {
+  display: none;
+}

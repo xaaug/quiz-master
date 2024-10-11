@@ -12,17 +12,25 @@ const failedQuestionsEl = document.querySelector(".failed-questions");
 const passedQuestionsEl = document.querySelector(".passed-questions");
 const scoreEl = document.querySelector(".score-el");
 const closeModalBtn = document.querySelector(".close-modal-btn");
+const quitBtn = document.querySelector(".quit-btn");
+const newQuizBtn = document.querySelector(".new-quiz-btn");
+const saveScoreField = document.querySelector('.save-score')
+const saveScoreBtn = document.querySelector(".save-score-btn");
+const previousPlayers = document.querySelector('.previous-players')
 
 let currentScore = 0;
-const scores = [];
+let scores = [];
 let questionsArray = [];
-const failedQuestions = [];
-const passedQuestions = [];
+let failedQuestions = [];
+let passedQuestions = [];
+let playerName = ''
+
 
 const fetchQuestions = async () => {
   spinner.style.display = "flex";
   questionsContainer.style.display = "inline-block";
   questionNo.style.display = "none";
+  quitBtn.style.display = "none";
 
   try {
     const response = await fetch(url);
@@ -30,6 +38,7 @@ const fetchQuestions = async () => {
 
     spinner.style.display = "none";
     questionNo.style.display = "block";
+    quitBtn.style.display = "block";
 
     return data;
   } catch (error) {
@@ -40,10 +49,17 @@ const fetchQuestions = async () => {
 
 const startQuiz = async () => {
   const questions = await fetchQuestions();
+  questionDiv.innerHTML = "";
+  doneBtn.style.display = "none";
+
+  failedQuestions = [];
+  passedQuestions = [];
+
+  displayQuestion(questions, 0);
 
   nextBtn.style.display = "inline-block";
 
-  displayQuestion(questions, 0);
+  console.log(localStorage.length);
 };
 
 let currentQuestionIndex = 1;
@@ -73,7 +89,7 @@ const displayQuestion = (arr, index) => {
 
   const difficultyEl = document.createElement("span");
   const difficultyText = document.createTextNode(
-    arr[currentQuestionIndex].difficulty.charAt(0).toUpperCase() +
+    arr[index].difficulty.charAt(0).toUpperCase() +
       arr[index].difficulty.slice(1)
   );
   difficultyEl.appendChild(difficultyText);
@@ -147,6 +163,7 @@ const checkQuestionStatus = (e, state) => {
 
 const showResults = () => {
   // Clear previous content to avoid duplication
+  scores.push(currentScore);
   failedQuestionsEl.innerHTML = "";
   passedQuestionsEl.innerHTML = "";
 
@@ -166,7 +183,7 @@ const showResults = () => {
                 </div>`;
     });
 
-    scoreEl.textContent = `Score: ${currentScore} / ${questionArray.length}`;
+    scoreEl.textContent = `${currentScore} / ${questionArray.length}`;
   } else if (failedQuestions.length === questionArray.length) {
     failedQuestionsEl.innerHTML = `<h6>OH NO! You failed all questions</h6>`;
 
@@ -183,7 +200,7 @@ const showResults = () => {
                 </div>`;
     });
 
-    scoreEl.textContent = `Score: ${currentScore} / ${questionArray.length}`;
+    scoreEl.textContent = `${currentScore} / ${questionArray.length}`;
   } else {
     // Handle case when there are some failed questions but not all
     passedQuestions.forEach(({ query, rightAnswer }, index) => {
@@ -212,12 +229,26 @@ const showResults = () => {
                 </div>`;
     });
 
-    scoreEl.textContent = `Score: ${currentScore} / ${questionArray.length}`;
+    scoreEl.textContent = `${currentScore} / ${questionArray.length}`;
   }
+
+  if (localStorage.length) {
+    playerName = JSON.parse(localStorage.getItem('score')).name
+    previousPlayers.style.display = 'block'
+    saveScoreField.style.display = 'none'
+    document.querySelector('.player-score').textContent = playerName + " \'s Score"
+    const userScore = { name: playerName, allScores: scores };
+    localStorage.setItem("score", JSON.stringify(userScore));
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      const name = JSON.parse(localStorage.getItem(key))
+      previousPlayers.innerHTML += `<button class='btn btn-primary player-btn'>${name.name.charAt(0).toUpperCase() + name.name.slice(1)}</button>`
+    }
+  }
+
 };
 
 const handleAnswer = (e) => {
-  // console.log('Button clicked')
   const answerBtnGroup = Array.from(e.target.parentElement.children);
 
   if (e.target.getAttribute("data-state") === "correct") {
@@ -231,7 +262,6 @@ const handleAnswer = (e) => {
     }
 
     checkQuestionStatus(e, passedQuestions);
-    console.log(passedQuestions);
 
     for (const item of answerBtnGroup) {
       if (item.getAttribute("data-state") === "incorrect") {
@@ -246,11 +276,10 @@ const handleAnswer = (e) => {
     }
 
     checkQuestionStatus(e, failedQuestions);
-    console.log(failedQuestions);
 
     e.target.className =
       e.target.getAttribute("class") + " list-group-item-danger";
-    console.log(e.target.parentElement.parentNode);
+    // console.log(e.target.parentElement.parentNode);
 
     for (const btn of answerBtnGroup) {
       if (btn.getAttribute("data-state") === "correct") {
@@ -285,19 +314,59 @@ const checkAnswers = () => {
   }, 200);
 };
 
-//   const shuffledArray = arr => {
-//     for (let i = arr.length - 1; i > 0; i--) {
-//         const r = Math.floor(Math.random() * (i + 1))
+const saveScore = () => {
 
-//         [arr[i], arr[r]] = [arr[r], arr[i]]
-//     }
-//     return arr
-//   }
+    if (!localStorage.length) {
+      const nameInput = document.getElementById('floatingInput')
+   let name = ''
+    if (nameInput.value) {
+      name = nameInput.value
+      nameInput.className = 'form-control'
+      nameInput.value = ''
+      document.querySelector('.player-score').textContent = name + " \'s Score"
+      saveScoreField.style.display = 'none'
+    } else {
+      nameInput.className = `${nameInput.getAttribute('class')} is-invalid`
+      return 
+    }
+  
+    const userScore = { name: name, allScores: scores };
+    localStorage.setItem("score", JSON.stringify(userScore));
+    } else if (localStorage.length) {
+      
+    }
+
+
+
+}
+
+const quitQuiz = () => {
+  questionDiv.innerHTML = "";
+  questionsContainer.style.display = "none";
+  heroSection.style.display = "flex";
+  doneBtn.style.display = "none";
+  nextBtn.style.display = "none";
+  questionArray = [];
+  currentQuestionIndex = 1;
+  failedQuestions = [];
+  passedQuestions = [];
+  currentScore = 0;
+};
+
+const exitQuiz = () => {
+  questionsContainer.style.display = "none";
+  heroSection.style.display = "flex";
+  questionArray = [];
+  failedQuestions = [];
+  passedQuestions = [];
+  currentQuestionIndex = 1;
+  doneBtn.style.display = "none";
+  currentScore = 0;
+};
 
 const shuffleArray = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    // [arr[i], arr[j]] = [arr[j], arr[i]];
     arr.push(arr[j]);
     arr.splice(j, 1);
   }
@@ -314,7 +383,18 @@ startQuizBtn.addEventListener("click", () => {
 
 nextBtn.addEventListener("click", displayNextQuestion);
 doneBtn.addEventListener("click", showResults);
-closeModalBtn.addEventListener("click", () => {
-  questionsContainer.style.display = "none";
-  heroSection.style.display = "flex";
+closeModalBtn.addEventListener("click", exitQuiz);
+quitBtn.addEventListener("click", quitQuiz);
+newQuizBtn.addEventListener("click", () => {
+  saveScore();
+  questionArray = [];
+  currentScore = 0;
+  currentQuestionIndex = 1;
+  questionDiv.innerHTML = "";
+  doneBtn.style.display = "none";
+  startQuiz();
 });
+
+saveScoreBtn.addEventListener('click', () => {
+  saveScore()
+})
