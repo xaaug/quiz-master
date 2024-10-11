@@ -65,3 +65,19 @@ body {
 .previous-players {
   display: none;
 }
+
+.scores {
+  display: none;
+}
+
+#home-btn {
+  display: none;
+}
+
+.clear-history {
+  display: none;
+}
+
+.refresh {
+  display: none;
+}

@@ -2,7 +2,7 @@ const url = "https://the-trivia-api.com/v2/questions";
 
 const heroSection = document.querySelector(".hero");
 const questionNo = document.getElementById("question-no");
-const startQuizBtn = document.getElementById("start-quiz");
+const startQuizBtn = document.querySelector(".start-quiz");
 const questionsContainer = document.querySelector(".questions-container");
 const questionDiv = document.querySelector(".question");
 const spinner = document.getElementById("loading");
@@ -14,17 +14,26 @@ const scoreEl = document.querySelector(".score-el");
 const closeModalBtn = document.querySelector(".close-modal-btn");
 const quitBtn = document.querySelector(".quit-btn");
 const newQuizBtn = document.querySelector(".new-quiz-btn");
-const saveScoreField = document.querySelector('.save-score')
+const saveScoreField = document.querySelector(".save-score");
 const saveScoreBtn = document.querySelector(".save-score-btn");
-const previousPlayers = document.querySelector('.previous-players')
+const previousPlayers = document.querySelector(".previous-players");
+const scoreHistoryField = document.querySelector(".scores");
+const scoreHistoryTitle = document.querySelector(".score-title");
+const highScoreEl = document.querySelector(".high-score");
+const scoresBtn = document.querySelector(".scores-btn");
+const homeBtn = document.querySelector(".home-btn");
+const questionHistory = document.querySelector(".all-history");
+const clearHistoryBtn = document.querySelector(".clear-history");
+const refreshHistory = document.querySelector(".refresh-history");
+const refreshEl = document.querySelector(".refresh");
+const nameInput = document.getElementById("floatingInput");
 
 let currentScore = 0;
 let scores = [];
 let questionsArray = [];
 let failedQuestions = [];
 let passedQuestions = [];
-let playerName = ''
-
+let playerName = "";
 
 const fetchQuestions = async () => {
   spinner.style.display = "flex";
@@ -185,7 +194,7 @@ const showResults = () => {
 
     scoreEl.textContent = `${currentScore} / ${questionArray.length}`;
   } else if (failedQuestions.length === questionArray.length) {
-    failedQuestionsEl.innerHTML = `<h6>OH NO! You failed all questions</h6>`;
+    passedQuestionsEl.innerHTML = `<h6>OH NO! You failed all questions</h6>`;
 
     failedQuestions.forEach(({ query, rightAnswer }, index) => {
       failedQuestionsEl.innerHTML += `
@@ -233,19 +242,36 @@ const showResults = () => {
   }
 
   if (localStorage.length) {
-    playerName = JSON.parse(localStorage.getItem('score')).name
-    previousPlayers.style.display = 'block'
-    saveScoreField.style.display = 'none'
-    document.querySelector('.player-score').textContent = playerName + " \'s Score"
-    const userScore = { name: playerName, allScores: scores };
+    const userData = JSON.parse(localStorage.getItem("score"));
+    playerName = userData.name;
+    previousPlayers.style.display = "block";
+    saveScoreField.style.display = "none";
+    document.querySelector(".player-score").textContent =
+      playerName + " 's Score";
+    const userScore = {
+      name: playerName,
+      allScores: scores,
+      questionsData: [
+        ...userData.questionsData,
+        {
+          total: questionArray.length,
+          score: currentScore,
+          failed: failedQuestions,
+          passed: passedQuestions,
+        },
+      ],
+    };
     localStorage.setItem("score", JSON.stringify(userScore));
+
+    // TODO Display previous players as buttons
     for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      const name = JSON.parse(localStorage.getItem(key))
-      previousPlayers.innerHTML += `<button class='btn btn-primary player-btn'>${name.name.charAt(0).toUpperCase() + name.name.slice(1)}</button>`
+      const key = localStorage.key(i);
+      const name = JSON.parse(localStorage.getItem(key));
+      previousPlayers.innerHTML += `<button class='btn btn-primary player-btn'>${
+        name.name.charAt(0).toUpperCase() + name.name.slice(1)
+      }</button>`;
     }
   }
-
 };
 
 const handleAnswer = (e) => {
@@ -315,30 +341,36 @@ const checkAnswers = () => {
 };
 
 const saveScore = () => {
-
-    if (!localStorage.length) {
-      const nameInput = document.getElementById('floatingInput')
-   let name = ''
+  if (!localStorage.length) {
+    
+    let name = "";
     if (nameInput.value) {
-      name = nameInput.value
-      nameInput.className = 'form-control'
-      nameInput.value = ''
-      document.querySelector('.player-score').textContent = name + " \'s Score"
-      saveScoreField.style.display = 'none'
+      name = nameInput.value;
+      nameInput.className = "form-control";
+      nameInput.value = "";
+      document.querySelector(".player-score").textContent = name + " 's Score";
+      saveScoreField.style.display = "none";
     } else {
-      nameInput.className = `${nameInput.getAttribute('class')} is-invalid`
-      return 
+      nameInput.className = `${nameInput.getAttribute("class")} is-invalid`;
+      return;
     }
-  
-    const userScore = { name: name, allScores: scores };
+
+    const userScore = {
+      name: name,
+      allScores: scores,
+      questionsData: [
+        {
+          total: questionArray.length,
+          score: currentScore,
+          failed: failedQuestions,
+          passed: passedQuestions,
+        },
+      ],
+    };
     localStorage.setItem("score", JSON.stringify(userScore));
-    } else if (localStorage.length) {
-      
-    }
-
-
-
-}
+  } else if (localStorage.length) {
+  }
+};
 
 const quitQuiz = () => {
   questionDiv.innerHTML = "";
@@ -356,6 +388,7 @@ const quitQuiz = () => {
 const exitQuiz = () => {
   questionsContainer.style.display = "none";
   heroSection.style.display = "flex";
+  questionDiv.innerHTML = "";
   questionArray = [];
   failedQuestions = [];
   passedQuestions = [];
@@ -395,6 +428,102 @@ newQuizBtn.addEventListener("click", () => {
   startQuiz();
 });
 
-saveScoreBtn.addEventListener('click', () => {
-  saveScore()
+saveScoreBtn.addEventListener("click", () => {
+  saveScore();
+});
+
+scoresBtn.addEventListener("click", () => {
+  heroSection.style.display = "none";
+  questionsContainer.style.display = "none";
+  scoresBtn.style.display = "none";
+  homeBtn.style.display = "block";
+  scoreHistoryField.style.display = "block";
+  refreshEl.style.display = "block";
+
+  // TODO: Convert to a funtion
+
+  if (localStorage.length) {
+    clearHistoryBtn.style.display = "block";
+    const userData = JSON.parse(localStorage.getItem("score")) || {};
+    scoreHistoryTitle.textContent = `${userData.name}'s Score History`;
+    highScoreEl.textContent = `Highest Score: ${
+      userData.allScores.sort()[userData.allScores.length - 1]
+    } Questions`;
+
+    const historyHTML = userData.questionsData
+      .map((item) => {
+        return `<div class="history border px-2 mb-3 py-2">
+      <h5 class="score mt-3">Score: ${item.score} / ${item.total}</h5>
+      <h5 class="mt-1">Failed</h5>
+      <div class="history-failed">${item.failed
+        .map(
+          (question, index) => `
+                <div class="border p-2 d-flex flex-column ${
+                  index > 0 ? "mt-2" : "mt-0"
+                }">
+                    <div class="d-flex align-items-start gap-1">
+                        <p class="text-danger">${index + 1}.</p>
+                        <h6>${question.query}</h6>
+                    </div> 
+                    <p><strong>Your Answer:</strong> <i>${
+                      question.rightAnswer
+                    }</i></p>
+                </div>`
+        )
+        .join("")}</div>
+      <h5 class="mt-2">Passed</h5>
+      <div class="history-passed">${item.passed
+        .map(
+          (question, index) =>
+            `
+                <div class="border p-2 d-flex flex-column ${
+                  index > 0 ? "mt-2" : "mt-0"
+                } ">
+                    <div class="d-flex align-items-start gap-1">
+                        <p class="text-success">${index + 1}.</p>
+                        <h6>${question.query}</h6>
+                    </div> 
+                    <p><strong>Your Answer:</strong> <i>${
+                      question.rightAnswer
+                    }</i></p>
+                </div>`
+        )
+        .join("")}</div>
+    </div>
+  </div>`;
+      })
+      .join("");
+
+    questionHistory.innerHTML = historyHTML;
+  } else if (!localStorage.length) {
+    scoreHistoryField.innerHTML = `<div><p class="fs-4 fw-bold">
+      Whoa there, adventurer! Looks like you haven’t saved anything yet. Are you living on the edge or
+      just trusting your memory a little too much? 😆</p> </div>`;
+  }
+});
+
+homeBtn.addEventListener("click", () => {
+  heroSection.style.display = "flex";
+  scoreHistoryField.style.display = "none";
+  refreshEl.style.display = "none";
+
+  homeBtn.style.display = "none";
+  scoresBtn.style.display = "block";
+});
+
+clearHistoryBtn.addEventListener("click", () => {
+  if (localStorage.length) {
+    localStorage.clear();
+    location.reload();
+  } else return;
+});
+
+refreshHistory.addEventListener("click", () => {
+  location.reload();
+});
+
+nameInput.addEventListener('keydown', e => {
+  if (e.keyCode === 13) {
+    saveScore()
+  }
 })

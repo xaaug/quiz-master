@@ -31,125 +31,185 @@
     <header class="border-bottom pb-4">
       <div class="nav-container">
         <nav class="navbar bg-body-tertiary fixed-top mt-1">
-          <div class="container-fluid d-flex justify-content-end">
-            <button class="btn btn-sm btn-primary px-4 fs-6" type="button">Scores</button>
+          <div class="container-fluid justify-content-end nav-button">
+            <button
+              class="btn btn-sm btn-primary px-4 fs-6 scores-btn"
+              type="button"
+            >
+              Scores
+            </button>
+            <button
+              class="btn btn-sm btn-primary px-4 fs-6 home-btn"
+              id="home-btn"
+              type="button"
+            >
+              Home
+            </button>
           </div>
         </nav>
       </div>
     </header>
 
-    <div class="container mt-3">
-      <div
-        class="hero justify-content-center flex-column align-items-center mt-5 text-center"
-      >
-        <h1 class="fw-bold fs-1">Welcome To Quiz Master</h1>
-        <h5 class="mt-2">
-          Where knowledge becomes a game and everyone is a winner
-        </h5>
-        <button type="button" id="start-quiz" class="btn btn-primary mt-4">
-          Start Quiz
-        </button>
-      </div>
-
-      <div class="questions-container text-left w-100">
-        <h2 class="fw-bold">Quiz Master</h2>
-        <button type="button" class="btn btn-primary mt-3 mb-2 quit-btn">
-          Quit
-        </button>
-        <p class="mt-3" id="question-no">Question</p>
-
-        <div class="mt-3" id="loading">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
+    <main>
+      <div class="container mt-3">
+        <div
+          class="hero justify-content-center flex-column align-items-center mt-5 text-center"
+        >
+          <h1 class="fw-bold fs-1">Welcome To Quiz Master</h1>
+          <h5 class="mt-2">
+            Welcome to Quiz Master! Where even if you don’t know the answer, you
+            can still walk away feeling like a genius... kinda. 😜
+          </h5>
+          <button type="button" class="btn btn-primary mt-4 start-quiz">
+            Start Quiz
+          </button>
         </div>
 
-        <div class="question"></div>
-        <button type="button" class="btn btn-primary mt-3 w-100" id="next-btn">
-          Next
-        </button>
-        <!-- Button trigger modal -->
-        <button
-          type="button"
-          class="btn btn-success mt-3 w-100"
-          data-bs-toggle="modal"
-          data-bs-target="#results"
-          id="done-btn"
-        >
-          Done
-        </button>
+        <div class="questions-container text-left w-100">
+          <h2 class="fw-bold">Quiz Master</h2>
+          <button type="button" class="btn btn-primary mt-3 mb-2 quit-btn">
+            Quit
+          </button>
+          <p class="mt-3" id="question-no">Question</p>
 
-        <!-- Modal -->
-        <div
-          class="modal fade"
-          data-bs-backdrop="static"
-          data-bs-keyboard="false"
-          id="results"
-          tabindex="-1"
-          aria-labelledby="results"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-
-              <div class="modal-header">
-                <h4 class="modal-title" id="resultsModalLabel">Results</h4>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-
-              <div class="modal-body">
-                <div class="score">
-                  <h6 class="player-score">Score</h6>
-                  <h5 class="score-el"></h5>
-                </div>
-
-                <div class="save-score">
-                  <h6>Save Your Score <i class="text-secondary">(Optional)</i></h6>
-                  <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="floatingInput" placeholder="John Terry">
-                    <label for="floatingInput">Name</label>
-                  </div>
-                  <button class="btn btn-primary save-score-btn">Save</button>
-
-                  <div class="previous-players mt-2 mb-2">
-                    <h6>Previous Players</h6>
-                  <div class="players"></div>
-                  </div>
-                </div>
-
-                <h5 class="mt-5">Failed</h5>
-                <div class="failed-questions"></div>
-                <h5 class="mt-5">Passed</h5>
-                <div class="passed-questions"></div>
-              </div>
-
-              <div class="modal-footer">
-                <button
-                  type="button"
-                  class="btn btn-secondary close-modal-btn"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-primary new-quiz-btn"
-                  data-bs-dismiss="modal"
-                >
-                  New Quiz
-                </button>
-              </div>
-
+          <div class="mt-3" id="loading">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
             </div>
           </div>
+
+          <div class="question"></div>
+          <button
+            type="button"
+            class="btn btn-primary mt-3 w-100"
+            id="next-btn"
+          >
+            Next
+          </button>
+          <!-- Button trigger modal -->
+          <button
+            type="button"
+            class="btn btn-success mt-3 w-100"
+            data-bs-toggle="modal"
+            data-bs-target="#results"
+            id="done-btn"
+          >
+            Done
+          </button>
+
+          <!-- Modal -->
+          <div
+            class="modal fade"
+            data-bs-backdrop="static"
+            data-bs-keyboard="false"
+            id="results"
+            tabindex="-1"
+            aria-labelledby="results"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="resultsModalLabel">Results</h4>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+
+                <div class="modal-body">
+                  <div class="score">
+                    <h6 class="player-score">Score</h6>
+                    <h5 class="score-el"></h5>
+                  </div>
+
+                  <div class="save-score">
+                    <h6>
+                      Save Your Score <i class="text-secondary">(Optional)</i>
+                    </h6>
+                    <div class="form-floating mb-3">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="floatingInput"
+                        placeholder="John Terry"
+                      />
+                      <label for="floatingInput">Name</label>
+                    </div>
+                    <button class="btn btn-primary save-score-btn">Save</button>
+
+                    <div class="previous-players mt-2 mb-2">
+                      <h6>Previous Players</h6>
+                      <div class="players"></div>
+                    </div>
+                  </div>
+
+                  <h5 class="mt-5">Failed</h5>
+                  <div class="failed-questions"></div>
+                  <h5 class="mt-5">Passed</h5>
+                  <div class="passed-questions"></div>
+                </div>
+
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary close-modal-btn"
+                    data-bs-dismiss="modal"
+                  >
+                    Exit
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-primary new-quiz-btn"
+                    data-bs-dismiss="modal"
+                  >
+                    New Quiz
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--End of Modal -->
         </div>
-        <!--End of Modal -->
+
+        <div class="scores-container">
+          <div class="refresh">
+            
+          <button type="button" class="btn btn-primary mt-2 mb-3 refresh-history">Refresh</button>
+          <p class="text-warning">If your history isn’t showing up, don’t panic—just hit that refresh button like it owes you money! And, uh, make sure you’ve taken a quiz first—otherwise, even the refresh button can’t help you! 😆</p>
+          </div>
+         <div class="scores">
+           <!-- Button trigger modal -->
+           <button type="button" class="btn btn-danger mt-2 mb-3" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">Clear History</button>
+           <!-- Modal -->
+           <div class="modal fade" id="clearHistoryModal" tabindex="-1" aria-labelledby="clearHistoryModalLabel" aria-hidden="true">
+             <div class="modal-dialog">
+               <div class="modal-content">
+                 <div class="modal-header">
+                   <h1 class="modal-title fs-5" id="clearHistoryModalLabel>Modal title</h1>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                 </div>
+                 <div class="modal-body">
+                   <p class="fw-bold">Whoa, hold up! <span class="text-danger">Deleting your data</span> will wipe out all your hard-earned victories (and maybe those embarrassing losses). Are you sure you want to erase your quiz legacy? 😅</p>
+                 </div>
+                 <div class="modal-footer">
+                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, way</button>
+                   <button type="button" class="btn btn-danger clear-history" data-bs-dismiss="modal">Wipe it clean</button>
+                 </div>
+               </div>
+             </div>
+           </div>
+           
+                     <h4 class="mt-3 score-title"></h4>
+                     <h6 class="high-score mt-2 mb-4"></h6>
+           
+                     <div class="all-history">
+                   </div>
+           
+         </div>
       </div>
-    </div>
+    </main>
   </body>
 </html>
