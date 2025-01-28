@@ -4,15 +4,15 @@
 
 **Quiz Master: Your Ultimate Quiz Experience!** 🎉
 
-[Try Out Quiz Master](https://github.com/xaaug/quiz-master)
+[Try Out Quiz Master](https://xaaug.github.io/quiz-master/)
 
 ## 📚 Table of Contents
 
-1. [Introduction] (#introduction)
+- [Introduction](#introduction)
 
-2. [Features] (#features)
+- [Features](#features)
 
-3. [Technologies Used] (#technologies-used)
+- [Technologies](#technologies)
 
 ## 🌟 Introduction
 
@@ -26,7 +26,7 @@ Welcome to **Quiz Master**—the interactive quiz application that’ll have you
 - **Responsive Design**: Whether you’re on a desktop or mobile, we’ve got you covered! 📱💻
 - **Dynamic Question Loading**: Fetching questions from an API means endless fun and fresh challenges await! 🎲
 
-## 🛠️ Technologies Used
+## 🛠️ Technologies
 
 - **HTML**: The backbone structure of the application. 🏗️
 - **CSS**: Styling that dazzles, enhanced by Bootstrap’s fantastic components! ✨
