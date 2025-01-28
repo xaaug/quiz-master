@@ -4,6 +4,8 @@
 
 **Quiz Master: Your Ultimate Quiz Experience!** 🎉
 
+[Try Out Quiz Master](https://github.com/xaaug/quiz-master)
+
 ## 📚 Table of Contents
 
 1. [Introduction] (#introduction)
