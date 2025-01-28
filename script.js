@@ -56,6 +56,8 @@ const fetchQuestions = async () => {
   }
 };
 
+console.log('Hello worl')
+
 const startQuiz = async () => {
   const questions = await fetchQuestions();
   questionDiv.innerHTML = "";
@@ -450,51 +452,49 @@ scoresBtn.addEventListener("click", () => {
       userData.allScores.sort()[userData.allScores.length - 1]
     } Questions`;
 
-    const historyHTML = userData.questionsData
-      .map((item) => {
-        return `<div class="history border px-2 mb-3 py-2">
+    questionHistory.innerHTML = userData.questionsData
+        .map((item) => {
+          return `<div class="history border px-2 mb-3 py-2">
       <h5 class="score mt-3">Score: ${item.score} / ${item.total}</h5>
       <h5 class="mt-1">Failed</h5>
       <div class="history-failed">${item.failed
-        .map(
-          (question, index) => `
+              .map(
+                  (question, index) => `
                 <div class="border p-2 d-flex flex-column ${
-                  index > 0 ? "mt-2" : "mt-0"
-                }">
+                      index > 0 ? "mt-2" : "mt-0"
+                  }">
                     <div class="d-flex align-items-start gap-1">
                         <p class="text-danger">${index + 1}.</p>
                         <h6>${question.query}</h6>
                     </div> 
                     <p><strong>Your Answer:</strong> <i>${
                       question.rightAnswer
-                    }</i></p>
+                  }</i></p>
                 </div>`
-        )
-        .join("")}</div>
+              )
+              .join("")}</div>
       <h5 class="mt-2">Passed</h5>
       <div class="history-passed">${item.passed
-        .map(
-          (question, index) =>
-            `
+              .map(
+                  (question, index) =>
+                      `
                 <div class="border p-2 d-flex flex-column ${
-                  index > 0 ? "mt-2" : "mt-0"
-                } ">
+                          index > 0 ? "mt-2" : "mt-0"
+                      } ">
                     <div class="d-flex align-items-start gap-1">
                         <p class="text-success">${index + 1}.</p>
                         <h6>${question.query}</h6>
                     </div> 
                     <p><strong>Your Answer:</strong> <i>${
-                      question.rightAnswer
-                    }</i></p>
+                          question.rightAnswer
+                      }</i></p>
                 </div>`
-        )
-        .join("")}</div>
+              )
+              .join("")}</div>
     </div>
   </div>`;
-      })
-      .join("");
-
-    questionHistory.innerHTML = historyHTML;
+        })
+        .join("");
   } else if (!localStorage.length) {
     scoreHistoryField.innerHTML = `<div><p class="fs-4 fw-bold">
       Whoa there, adventurer! Looks like you haven’t saved anything yet. Are you living on the edge or
